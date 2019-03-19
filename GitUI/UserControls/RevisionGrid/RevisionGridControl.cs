@@ -122,6 +122,7 @@ namespace GitUI
         internal RevisionGridMenuCommands MenuCommands { get; }
         internal bool IsShowCurrentBranchOnlyChecked { get; private set; }
         internal bool IsShowAllBranchesChecked { get; private set; }
+        internal bool IsShowAllLocalBranchesChecked { get; private set; }
         internal bool IsShowFilteredBranchesChecked { get; private set; }
 
         public RevisionGridControl()
@@ -1441,6 +1442,22 @@ namespace GitUI
             }
 
             AppSettings.BranchFilterEnabled = false;
+            AppSettings.BranchLocalOnlyEnabled = false;
+
+            SetShowBranches();
+            ForceRefreshRevisions();
+        }
+
+        public void ShowAllLocalBranches()
+        {
+            if (IsShowAllLocalBranchesChecked)
+            {
+                return;
+            }
+
+            AppSettings.BranchLocalOnlyEnabled = true;
+            AppSettings.BranchFilterEnabled = true;
+            AppSettings.ShowCurrentBranchOnly = false;
 
             SetShowBranches();
             ForceRefreshRevisions();
@@ -1463,6 +1480,7 @@ namespace GitUI
         private void SetShowBranches()
         {
             IsShowAllBranchesChecked = !AppSettings.BranchFilterEnabled;
+            IsShowAllLocalBranchesChecked = AppSettings.BranchLocalOnlyEnabled;
             IsShowCurrentBranchOnlyChecked = AppSettings.BranchFilterEnabled && AppSettings.ShowCurrentBranchOnly;
             IsShowFilteredBranchesChecked = AppSettings.BranchFilterEnabled && !AppSettings.ShowCurrentBranchOnly;
 
@@ -1480,7 +1498,7 @@ namespace GitUI
             {
                 _refFilterOptions = _branchFilter.Length > 0
                     ? 0
-                    : RefFilterOptions.All | RefFilterOptions.Boundary;
+                    : AppSettings.BranchLocalOnlyEnabled ? RefFilterOptions.LocalOnly : RefFilterOptions.All | RefFilterOptions.Boundary;
             }
 
             // Apply checkboxes changes also to FormBrowse main menu
@@ -2683,5 +2701,6 @@ namespace GitUI
         }
 
         #endregion
+
     }
 }

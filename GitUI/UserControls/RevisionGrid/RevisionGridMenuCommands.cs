@@ -176,6 +176,13 @@ namespace GitUI.UserControls.RevisionGrid
                 },
                 new MenuCommand
                 {
+                    Name = "ShowAllLocalBranches",
+                    Text = "Show all local branches",
+                    ExecuteAction = () => _revisionGrid.ShowAllLocalBranches(),
+                    IsCheckedFunc = () => _revisionGrid.IsShowAllLocalBranchesChecked
+                },
+                new MenuCommand
+                {
                     Name = "ShowCurrentBranchOnly",
                     Text = "Show current branch only",
                     ShortcutKeyDisplayString = GetShortcutKeyDisplayStringFromRevisionGridIfAvailable(RevisionGridControl.Commands.ShowCurrentBranchOnly),

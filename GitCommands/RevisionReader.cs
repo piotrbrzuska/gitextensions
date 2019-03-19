@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -23,7 +23,8 @@ namespace GitCommands
         ShowGitNotes = 32,         // --not --glob=notes --not
         NoMerges = 64,             // --no-merges
         FirstParent = 128,         // --first-parent
-        SimplifyByDecoration = 256 // --simplify-by-decoration
+        SimplifyByDecoration = 256, // --simplify-by-decoration
+        LocalOnly = 512 // insert all local branches into filter
     }
 
     public sealed class RevisionReader : IDisposable
@@ -101,6 +102,18 @@ namespace GitCommands
             var refsByObjectId = refs.ToLookup(head => head.ObjectId);
 
             token.ThrowIfCancellationRequested();
+
+            // Local Only - get list of all local branches and use it as branchFilter
+            if (string.IsNullOrWhiteSpace(branchFilter) && refFilterOptions.HasFlag(RefFilterOptions.LocalOnly))
+            {
+                using (var process = module.GitCommandRunner.RunDetached("branch", redirectOutput: true,
+                    outputEncoding: GitModule.LosslessEncoding))
+                {
+                    await process.WaitForExitAsync();
+                    var lines = (await process.StandardOutput.ReadToEndAsync()).SplitLines();
+                    branchFilter = lines.Select(l => l.TrimStart('*').Trim()).Join(" ");
+                }
+            }
 
             var arguments = BuildArguments(refFilterOptions, branchFilter, revisionFilter, pathFilter);
 

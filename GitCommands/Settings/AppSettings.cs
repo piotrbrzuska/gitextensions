@@ -1024,6 +1024,12 @@ namespace GitCommands
             set => SetBool("branchfilterenabled", value);
         }
 
+        public static bool BranchLocalOnlyEnabled
+        {
+            get => GetBool("branchlocalonlyenabled", false);
+            set => SetBool("branchlocalonlyenabled", value);
+        }
+
         public static bool ShowFirstParent
         {
             get => GetBool("showfirstparent", false);
